@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
 
 const DisplayWindow = (props) => (<input type='text' value={props.expression} disabled='true'/>);
+let result = 0
 
 class Button extends React.Component {
   constructor() {
@@ -20,30 +21,49 @@ class Button extends React.Component {
 }
 
 class Home extends React.Component {
+
   constructor () {
     super()
     
     this.state = {
-      expression: ''
+      expression: '',
     }
-    
+
+    this.whenOperationConfirmed = 0
     this.onKeyPressed = this.onKeyPressed.bind(this)
     this.onEvaluatePressed = this.onEvaluatePressed.bind(this)
     this.onDeletePressed = this.onDeletePressed.bind(this)
   }
   
   onKeyPressed(text) {
-    this.setState((prev) => ({expression: prev.expression + text}))
+    if(this.whenOperationConfirmed === 1){
+      if(~['-', '=', '*', '+', '.', '/'].indexOf(text)){
+        this.setState((prev) => ({expression: prev.expression + text}))
+      }
+      else{
+        this.setState({expression: '' + text})
+      }
+      this.whenOperationConfirmed = 0
+    }
+    else{
+      this.setState((prev) => ({expression: prev.expression + text}))
+    }
   }
   
   onEvaluatePressed() {
-    const result = eval(this.state.expression)
-    this.setState({expression: result.toString()})
+    if(~['-', '=', '*', '+', '.', '/'].indexOf(this.state.expression)){
+      alert("Erreur, entrez une valeur correct !")
+      this.setState({expression: ''})
+    }
+    else{
+      result = eval(this.state.expression)
+      this.setState({expression: result.toString()})
+      this.whenOperationConfirmed = 1
+    }
   }
   
   onDeletePressed() {
-    this.setState((prev) => ({
-      expression: prev.expression.length <= 1 ? '' : prev.expression.slice(0, -1)}))
+    this.setState(({expression: ''}))
   }
 
   render() {
